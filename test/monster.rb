@@ -118,4 +118,7 @@ if $0 == __FILE__
   ogre.enemy_dead         # -> Woohoo!
   ogre.act!               # -> Acting @coming_back
                           # -> step step home
+  ogre.low_hp = true
+  ogre.sight 'player3'
+  ogre.act!               # -> Acting @runaway
 end
