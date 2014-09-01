@@ -174,7 +174,7 @@ On event:
 * to_state.after_enter
 * event.after
 
-If `before...` callback returns Hifsm.cancel then no further processing is done
+If `before...` callback returns `false` then no further processing is done
 
 On `act!` just calls action block if it was given.
 
