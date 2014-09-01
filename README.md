@@ -174,7 +174,7 @@ On event:
 * to_state.after_enter
 * event.after
 
-If `before...` callback returns `false` then no further processing is done
+If any of `before...` callbacks returns `false` then no further processing is done, no exceptions raised, machine state is not changed.
 
 On `act!` just calls action block if it was given.
 
