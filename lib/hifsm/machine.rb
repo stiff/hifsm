@@ -6,8 +6,6 @@ module Hifsm
 
       @state = (initial_state && fsm.get_state!(initial_state) || fsm.initial_state!).enter!
 
-      # raise @state.inspect if initial_state == 'on.sync'
-
       mach = self
       fsm.all_events.each do |event_name, event|
         @target.singleton_class.instance_exec do
