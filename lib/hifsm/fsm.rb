@@ -17,7 +17,7 @@ module Hifsm
     end
 
     def new(target = nil, initial_state = nil)
-      Hifsm::Machine.new(target, self, initial_state)
+      Hifsm::Machine.new(self, target, initial_state)
     end
 
     def all_events
@@ -29,7 +29,13 @@ module Hifsm
     end
 
     def get_state!(name)
-      @states[name.to_s] || raise(Hifsm::MissingState.new(name.to_s))
+      top_level_state, rest = name.to_s.split('.', 2)
+      st = @states[top_level_state] || raise(Hifsm::MissingState.new(name.to_s))
+      if rest
+        st.get_substate!(rest)
+      else
+        st
+      end
     end
 
     def event(name, options, &block)

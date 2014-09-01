@@ -1,10 +1,12 @@
 module Hifsm
   class Machine
-    def initialize(target, fsm, initial_state = nil)
+    def initialize(fsm, target, initial_state = nil)
       @target = target || self
       @fsm = fsm
 
-      @state = fsm.states[initial_state] || fsm.initial_state!
+      @state = (initial_state && fsm.get_state!(initial_state) || fsm.initial_state!).enter!
+
+      # raise @state.inspect if initial_state == 'on.sync'
 
       mach = self
       fsm.all_events.each do |event_name, event|

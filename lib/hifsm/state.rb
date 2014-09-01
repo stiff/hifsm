@@ -77,6 +77,11 @@ module Hifsm
       end
     end
 
+    def get_substate!(name)
+      raise Hifsm::MissingState.new(name.to_s) unless @sub_fsm
+      @sub_fsm.get_state!(name)
+    end
+
     def to_s
       if @parent
         "#{@parent.to_s}.#{@name.to_s}"
