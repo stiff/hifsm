@@ -178,6 +178,14 @@ If `before...` callback returns Hifsm.cancel then no further processing is done
 
 On `act!` just calls action block if it was given.
 
+## Testing
+
+Only 'public' API is unit-tested, internal implementation may be freely changed, so don't rely on it.
+
+To run tests use `bundle exec rake test`
+
+Try also `bundle exec ruby test/monster.rb`
+
 ## Contributing
 
 1. Fork it
