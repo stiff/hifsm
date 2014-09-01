@@ -28,12 +28,12 @@ class Monster
       event :reached, :from => :pursuing, :to => :fighting
 
       action do |tick|
-        puts "#{tick}: Attack!"
+        debug && puts("#{tick}: Attack!")
       end
     end
     state :coming_back do
       action do
-        step_towards home
+        step_towards @home
       end
     end
     state :runaway
@@ -41,64 +41,81 @@ class Monster
     event :sight, :from => [:idle, :coming_back], :to => :runaway, :guard => :low_hp?
     event :sight, :from => [:idle, :coming_back], :to => :attacking do
       before do |t|
-        puts "Setting target to #{t}"
+        debug && puts("Setting target to #{t}")
         self.target = t
       end
     end
-    event :kill, :from => :attacking, :to => :coming_back
-  end
-
-  attr_accessor :target
-  attr_reader :state
-
-  class <<self
-    def example
-      # set_trace_func proc { |event, file, line, id, binding, classname|
-      #     unless [IO, Fixnum, Kernel, Hash, Array, Class, Module, BasicObject].include? classname
-      #       printf "%8s %32s:%-2d %10s %16s\n", event, File.basename(file), line, id, classname
-      #     end
-      #   }
-      ogre = Monster.new
-      ogre.act!  # does nothing, idle
-      ogre.sight 'player' # ->
-      ogre.act!  # ->
+    event :enemy_dead, :from => :attacking, :to => :coming_back do
+      after do
+        debug && puts("Woohoo!")
+        self.target = nil
+      end
     end
   end
 
+  attr_accessor :target, :low_hp, :debug
+  attr_reader :state
+
   def initialize
+    @debug = false
     @home = 'home'
     @state = @@fsm.new(self) # or @@fsm.new(self, 'attacking.pursuing')
     @tick = 1
+    @low_hp = false
   end
 
   def act!
-    puts "Acting @#{@state}"
+    debug && puts("Acting @#{@state}")
     @state.act!(@tick)
     @tick = @tick + 1
   end
 
   def hit(target)
-    puts "~~> #{target}"
+    debug && puts("~~> #{target}")
   end
 
   def low_hp?
-    false
+    @low_hp
   end
 
   def plan_attack
-    puts "planning..."
-    @state.acquire
+    debug && puts("planning...")
+    acquire
   end
 
   def roar!
-    puts "AARGHH!"
+    debug && puts("AARGHH!")
   end
 
   def step_towards(target)
-    puts "step step #{target}"
+    debug && puts("step step #{target}")
   end
 
 end
 
-Monster.example
+if $0 == __FILE__
+  ogre = Monster.new
+  ogre.debug = true       # Console output:
+  ogre.act!               # -> Acting @idle
+  ogre.sight 'player'     # -> Setting target to player
+  ogre.act!               # -> Acting @attacking.acquiring_target
+                          # -> planning...
+                          # -> AARGHH!
+  # ogre.acquire        -> Hifsm::MissingTransition, already acquired in act!
+  ogre.act!               # -> Acting @attacking.pursuing
+                          # -> step step player
+  ogre.enemy_dead         # -> Woohoo!
+  ogre.act!               # -> Acting @coming_back
 
+  ogre.sight 'player2'    # -> Setting target to player2
+  ogre.acquire            # -> AARGHH!
+  ogre.act!               # -> Acting @attacking.pursuing
+                          # -> step step player2
+  ogre.reached
+  puts ogre.state         # -> attacking.fighting
+  ogre.act!               # -> ~~> player2
+  5.times { ogre.act! }   # -> ...
+  ogre.enemy_dead         # -> Woohoo!
+  ogre.act!               # -> Acting @coming_back
+                          # -> step step home
+end

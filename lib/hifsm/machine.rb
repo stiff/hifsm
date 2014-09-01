@@ -1,36 +1,30 @@
 module Hifsm
   class Machine
     def initialize(target, fsm, initial_state = nil)
-      @target = target
+      @target = target || self
       @fsm = fsm
 
-      @state = fsm.states[initial_state] || fsm.initial_state || raise("No initial state given")
+      @state = fsm.states[initial_state] || fsm.initial_state!
 
       mach = self
-      fsm.events.each do |event_name, event|
-        target.singleton_class.instance_exec do
-          define_method(event_name) {|*args| mach.trigger(event_name, args) }
+      fsm.all_events.each do |event_name, event|
+        @target.singleton_class.instance_exec do
+          define_method(event_name) {|*args| mach.fire(event_name, *args) }
         end
       end
     end
 
     def act!(*args)
-      @state.act!(*args)
+      @state.act!(@target, *args)
     end
 
-    def trigger(event, args)
-      @fsm.transitions[@state.to_s][event.to_s].each do |event|
-        if event.guard?(@target)
-          from_state = @state
-          to_state = @fsm.states[event.to]
-          if event.trigger(@target, :before, *args) && to_state.trigger(@target, :before_enter, *args) && from_state.trigger(@target, :before_exit, *args)
-            @state = to_state
-            from_state.trigger(@target, :after_exit, *args)
-            to_state.trigger(@target, :after_enter, *args)
-            event.trigger(@target, :after, *args)
-          end
-          return
-        end
+    def state
+      @state.to_s
+    end
+
+    def fire(event, *args)
+      @state.fire(@target, event, *args) do |new_state|
+        @state = new_state
       end
     end
 
