@@ -20,6 +20,8 @@ Or install it yourself as:
 
 I prefer 1.8-style hashes, and since no advanced Ruby magic used it should work in 1.8, but only tested in 2+.
 
+__This is in early development, so be careful.__
+
 ## Features
 
 * Easy to use
@@ -31,7 +33,7 @@ I prefer 1.8-style hashes, and since no advanced Ruby magic used it should work 
 
 ## Usage
 
-Most features reside in a Hifsm::FSM class. Here is how to use it to model a monster in a Quake-like game:
+Here is how to use it to model a monster in a Quake-like game. It covers most Hifsm features:
 
 ```ruby
 require 'hifsm'
