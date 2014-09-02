@@ -97,7 +97,7 @@ class Monster
   def initialize
     @debug = false
     @home = 'home'
-    @state = @@fsm.machine(self) # or @@fsm.machine(self, 'attacking.pursuing')
+    @state = @@fsm.instantiate(self) # or @@fsm.instantiate(self, 'attacking.pursuing')
     @tick = 1
     @low_hp = false
   end

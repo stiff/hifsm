@@ -22,12 +22,12 @@ class TestHierarchical < Minitest::Test
   end
 
   def test_initial_state_is_off_pending_by_default
-    machine = @fsm.machine
+    machine = @fsm.instantiate
     assert_equal 'off.pending', machine.state
   end
 
   def test_explicit_initial_state
-    machine2 = @fsm.machine(nil, 'on.sync')
+    machine2 = @fsm.instantiate(nil, 'on.sync')
     assert_equal 'on.sync', machine2.state
     # assert_nothing_raised
     machine2.toggle
@@ -35,27 +35,27 @@ class TestHierarchical < Minitest::Test
   end
 
   def test_toggle_raises_an_error_in_pending_state
-    machine = @fsm.machine
+    machine = @fsm.instantiate
     assert_raises(Hifsm::MissingTransition) do
       machine.toggle
     end
   end
 
   def test_sync
-    machine = @fsm.machine
+    machine = @fsm.instantiate
     machine.sync
     assert_equal 'off.sync', machine.state
   end
 
   def test_toggle_from_off_sync_to_on_pending
-    machine = @fsm.machine
+    machine = @fsm.instantiate
     machine.sync
     machine.toggle
     assert_equal 'on.pending', machine.state
   end
 
   def test_toggle_from_on_sync_to_off_sync
-    machine2 = @fsm.machine(nil, 'on.sync')
+    machine2 = @fsm.instantiate(nil, 'on.sync')
     machine2.toggle
     assert_equal 'off.sync', machine2.state
   end

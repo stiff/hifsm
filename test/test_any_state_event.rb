@@ -11,7 +11,7 @@ class TestAnyStateEvent < Minitest::Test
       event :toggle, :from => :on, :to => :off
       event :halt, :to => :halt
     end
-    @machine = @fsm.machine
+    @machine = @fsm.instantiate
   end
 
   def test_halt_from_off

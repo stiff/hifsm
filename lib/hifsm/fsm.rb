@@ -10,7 +10,7 @@ module Hifsm
       instance_eval &block if block
     end
 
-    def machine(target = nil, initial_state = nil)
+    def instantiate(target = nil, initial_state = nil)
       Hifsm::Machine.new(self, target, initial_state)
     end
 

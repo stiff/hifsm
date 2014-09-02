@@ -14,7 +14,7 @@ class TestEventGuard < Minitest::Test
 
   def test_cant_break_wall_10_stones_thick
     wall = Wall.new(10)
-    machine = @fsm.machine(wall)
+    machine = @fsm.instantiate(wall)
     assert_raises(Hifsm::MissingTransition) do
       wall.break
     end
@@ -22,7 +22,7 @@ class TestEventGuard < Minitest::Test
 
   def test_cant_break_thin_wall
     wall = Wall.new(3)
-    machine = @fsm.machine(wall)
+    machine = @fsm.instantiate(wall)
     wall.break
     assert_equal 'broken', machine.state
   end
