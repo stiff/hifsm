@@ -3,18 +3,15 @@ require 'setup_tests'
 class TestHierarchical < Minitest::Test
   def setup
     @fsm = Hifsm::FSM.new do
-      state :off, :initial => true do
+      sync_fsm = proc do
         state :pending, :initial => true
         state :sync
 
         event :sync, :from => :pending, :to => :sync
       end
-      state :on do
-        state :pending, :initial => true
-        state :sync
 
-        event :sync, :from => :pending, :to => :sync
-      end
+      state :off, :initial => true, &sync_fsm
+      state :on, &sync_fsm
 
       event :toggle, :from => 'off.sync', :to => :on
       event :toggle, :from => 'on.sync', :to => 'off.sync'
