@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestAnyStateEvent < Minitest::Test
   def setup
-    @fsm = Hifsm::FSM.define do
+    @fsm = Hifsm::FSM.new do
       state :off, :initial => true
       state :on
       state :halt
@@ -11,7 +11,7 @@ class TestAnyStateEvent < Minitest::Test
       event :toggle, :from => :on, :to => :off
       event :halt, :to => :halt
     end
-    @machine = @fsm.new
+    @machine = @fsm.machine
   end
 
   def test_halt_from_off

@@ -1,7 +1,7 @@
 require 'hifsm'
 
 class Monster
-  @@fsm = Hifsm::FSM.define do
+  @@fsm = Hifsm::FSM.new do
     state :idle, :initial => true
     state :attacking do
       state :acquiring_target, :initial => true do
@@ -59,7 +59,7 @@ class Monster
   def initialize
     @debug = false
     @home = 'home'
-    @state = @@fsm.new(self) # or @@fsm.new(self, 'attacking.pursuing')
+    @state = @@fsm.machine(self) # or @@fsm.machine(self, 'attacking.pursuing')
     @tick = 1
     @low_hp = false
   end

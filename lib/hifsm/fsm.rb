@@ -2,12 +2,6 @@ module Hifsm
   class FSM
     attr_reader :states, :transitions
 
-    class <<self
-      def define(&block)
-        Hifsm::FSM.new(&block)
-      end
-    end
-
     def initialize(parent = nil, &block)
       @parent = parent
       @states = {}
@@ -16,7 +10,7 @@ module Hifsm
       instance_eval &block if block
     end
 
-    def new(target = nil, initial_state = nil)
+    def machine(target = nil, initial_state = nil)
       Hifsm::Machine.new(self, target, initial_state)
     end
 
