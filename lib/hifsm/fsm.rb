@@ -5,9 +5,9 @@ module Hifsm
     def initialize(parent = nil, &block)
       @parent = parent
       @states = {}
-      @initial_state
+      @initial_state = nil
 
-      instance_eval &block if block
+      instance_eval(&block) if block
     end
 
     def instantiate(target = nil, initial_state = nil)
@@ -40,13 +40,13 @@ module Hifsm
         st = get_state!(from)
         st.add_transition(ev)
       end
-      ev.instance_eval &block if block
+      ev.instance_eval(&block) if block
     end
 
     def state(name, options = {}, &block)
       st = @states[name.to_s] = Hifsm::State.new(name, @parent)
       @initial_state = st if options[:initial]
-      st.instance_eval &block if block
+      st.instance_eval(&block) if block
     end
 
     private

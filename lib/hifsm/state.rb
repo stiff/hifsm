@@ -5,7 +5,8 @@ module Hifsm
     def initialize(name, parent = nil)
       @name = name
       @parent = parent
-      @action
+      @action = nil
+      @sub_fsm = nil
 
       @callbacks = Hash.new {|h, key| h[key] = Callbacks.new }
       @transitions = Hash.new {|h, key| h[key] = Array.new }
@@ -21,11 +22,11 @@ module Hifsm
     end
 
     def state(*args, &block)
-      sub_fsm!.state *args, &block
+      sub_fsm!.state(*args, &block)
     end
 
     def event(*args, &block)
-      sub_fsm!.event *args, &block
+      sub_fsm!.event(*args, &block)
     end
 
     def events

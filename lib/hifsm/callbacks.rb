@@ -6,7 +6,7 @@ class Callbacks
       elsif cb.is_a? Symbol
         target.send(cb, *args)
       else
-        target.instance_exec *args, &cb
+        target.instance_exec(*args, &cb)
       end
     end
   end
