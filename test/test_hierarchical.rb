@@ -3,15 +3,15 @@ require 'setup_tests'
 class TestHierarchical < Minitest::Test
   def setup
     @fsm = Hifsm::FSM.new do
-      sync_fsm = proc do
+      async = proc do
         state :pending, :initial => true
         state :sync
 
         event :sync, :from => :pending, :to => :sync
       end
 
-      state :off, :initial => true, &sync_fsm
-      state :on, &sync_fsm
+      state :off, :initial => true, &async
+      state :on, &async
 
       event :toggle, :from => 'off.sync', :to => :on
       event :toggle, :from => 'on.sync', :to => 'off.sync'
@@ -26,9 +26,8 @@ class TestHierarchical < Minitest::Test
   def test_explicit_initial_state
     machine2 = @fsm.instantiate(nil, 'on.sync')
     assert_equal 'on.sync', machine2.state
-    # assert_nothing_raised
     machine2.toggle
-    pass
+    pass # assert_nothing_raised
   end
 
   def test_toggle_raises_an_error_in_pending_state
