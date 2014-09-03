@@ -33,7 +33,7 @@ module Hifsm
     end
 
     def event(name, options, &block)
-      ev = Hifsm::Event.new(name, get_state!(options[:to]), options[:guard])
+      ev = Hifsm::Event.new(name, get_state!(options[:to]), array_wrap(options[:guard]))
       from_states = array_wrap(options[:from])
       from_states = @states.keys if from_states.empty?
       from_states.each do |from|

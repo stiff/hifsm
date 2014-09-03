@@ -4,7 +4,11 @@ class Callbacks
     def invoke(target, cb, *args)
       if cb.nil?
       elsif cb.is_a? Symbol
-        target.send(cb, *args)
+        if target.method(cb).arity > 0
+          target.send(cb, *args)
+        else
+          target.send(cb)
+        end
       else
         target.instance_exec(*args, &cb)
       end
@@ -15,12 +19,12 @@ class Callbacks
     @listeners = []
   end
 
-  def add(&callback)
-    @listeners.push callback
+  def add(symbol = nil, &callback)
+    @listeners.push symbol || callback
   end
 
   def trigger(target, *args)
-    @listeners.each do |callback|
+    @listeners.map do |callback|
       Callbacks.invoke target, callback, *args
     end
   end

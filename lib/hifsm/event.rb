@@ -1,15 +1,17 @@
 module Hifsm
   class Event
-    CALLBACKS = [:before, :after].freeze
+    CALLBACKS = [:before, :after, :guard].freeze
 
     attr_reader :name, :to
 
-    def initialize(name, to, guard)
+    def initialize(name, to, guards)
       @name = name
-      @guard = guard
       @to = to
-
       @callbacks = Hash.new {|h, key| h[key] = Callbacks.new }
+
+      guards.each do |g|
+        @callbacks[:guard].add g
+      end
     end
 
     CALLBACKS.each do |cb|
@@ -20,8 +22,8 @@ module Hifsm
       @callbacks[cb].trigger(target, *args)
     end
 
-    def guard?(target)
-      !@guard || Callbacks.invoke(target, @guard)
+    def guard?(target, *args)
+      trigger(target, :guard, *args).all?
     end
   end
 end

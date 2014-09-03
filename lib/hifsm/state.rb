@@ -36,7 +36,7 @@ module Hifsm
     def fire(target, event_name, *args, &new_state_callback)
       event_name = event_name.to_s
       @transitions[event_name].each do |ev|
-        if ev.guard?(target)
+        if ev.guard?(target, *args)
           from_state = self
           to_state = ev.to
           if ev.trigger(target, :before, *args) &&
@@ -47,7 +47,7 @@ module Hifsm
             to_state.trigger(target, :after_enter, *args)
             ev.trigger(target, :after, *args)
           end
-          return
+          return target
         end
       end
       if @parent
@@ -65,9 +65,8 @@ module Hifsm
     end
 
     def act!(target, *args)
+      @parent.act!(target, *args) if @parent
       @action && Callbacks.invoke(target, @action, *args)
-      if @sub_fsm
-      end
     end
 
     def enter!
