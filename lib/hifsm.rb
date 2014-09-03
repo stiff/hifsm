@@ -18,4 +18,15 @@ module Hifsm
     end
   end
 
+  class <<self
+    def fsm_module(name = :state, &block)
+      FSM::new(name, &block).to_module
+    end
+  end
+end
+
+begin
+  require 'active_record'
+  require 'hifsm/adapters/active_record_adapter'
+rescue LoadError
 end

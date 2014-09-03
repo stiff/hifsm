@@ -2,7 +2,8 @@ module Hifsm
   class State
     CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit].freeze
 
-    def initialize(name, parent = nil)
+    def initialize(fsm, name, parent = nil)
+      @fsm = fsm
       @name = name
       @parent = parent
       @action = nil
@@ -92,7 +93,8 @@ module Hifsm
 
     private
       def sub_fsm!
-        @sub_fsm ||= Hifsm::FSM.new(self)
+        # FIXME too much coupling
+        @sub_fsm ||= Hifsm::FSM.new(@fsm.name, self)
       end
   end
 end

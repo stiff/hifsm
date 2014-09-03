@@ -1,17 +1,16 @@
 module Hifsm
+  # This is just a storage of current state
   class Machine
     def initialize(fsm, target, initial_state = nil)
       @target = target || self
       @fsm = fsm
 
-      @state = (initial_state && fsm.get_state!(initial_state) || fsm.initial_state!).enter!
+      initial_state_method_name = "initial_#{fsm.name}"
+      initial_state ||= target.send(initial_state_method_name) if target.respond_to?(initial_state_method_name)
+      initial_state &&= fsm.get_state!(initial_state)
+      initial_state ||= fsm.initial_state!
 
-      mach = self
-      fsm.all_events.each do |event_name, event|
-        @target.singleton_class.instance_exec do
-          define_method(event_name) {|*args| mach.fire(event_name, *args) }
-        end
-      end
+      @state = initial_state.enter!
     end
 
     def act!(*args)

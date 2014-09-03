@@ -1,30 +1,27 @@
 require 'setup_tests'
 
 class TestIflessFactorial < Minitest::Test
-  Value = Struct.new(:value)
-
-  def setup
-    @fsm = Hifsm::FSM.new do
+  class Value < Struct.new(:value)
+    include Hifsm.fsm_module {
       state :idle, :initial => true
-      state :counting
+      state :computing
 
-      event :count, :to => :idle do
+      event :compute, :to => :idle do
         guard { |x| x == 0 }
         after { |x| self.value = 1 }
       end
-      event :count, :to => :counting do
+      event :compute, :to => :computing do
         after do |x|
-          count(x - 1)
+          compute(x - 1)
           self.value *= x
         end
       end
-    end
+    }
   end
 
   def factorial(n)
     val = Value.new
-    @fsm.instantiate(val)
-    val.count(n).value
+    val.compute(n).value
   end
 
   def test_factorial_0

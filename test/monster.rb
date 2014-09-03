@@ -1,7 +1,7 @@
 require 'hifsm'
 
 class Monster
-  @@fsm = Hifsm::FSM.new do
+  include Hifsm.fsm_module {
     state :idle, :initial => true
     state :attacking do
       state :acquiring_target, :initial => true do
@@ -51,22 +51,20 @@ class Monster
         self.target = nil
       end
     end
-  end
+  }
 
   attr_accessor :target, :low_hp, :debug
-  attr_reader :state
 
   def initialize
     @debug = false
     @home = 'home'
-    @state = @@fsm.instantiate(self) # or @@fsm.instantiate(self, 'attacking.pursuing')
     @tick = 1
     @low_hp = false
   end
 
   def act!
-    debug && puts("Acting @#{@state}")
-    @state.act!(@tick)
+    debug && puts("Acting @#{state}")
+    state_machine.act! @tick
     @tick = @tick + 1
   end
 
@@ -95,30 +93,36 @@ end
 
 if $0 == __FILE__
   ogre = Monster.new
-  ogre.debug = true       # Console output:
-  ogre.act!               # -> Acting @idle
-  ogre.sight 'player'     # -> Setting target to player
-  ogre.act!               # -> Acting @attacking.acquiring_target
-                          # -> planning...
-                          # -> AARGHH!
+  ogre.debug = true       ### Console output:
+  ogre.act!               # Acting @idle
+  ogre.sight 'player'     # Setting target to player
+  ogre.act!               # Acting @attacking.acquiring_target
+                          # 2: Attack!     <- parent state act! first
+                          # planning...
+                          # AARGHH!
   # ogre.acquire        -> Hifsm::MissingTransition, already acquired in act!
-  ogre.act!               # -> Acting @attacking.pursuing
-                          # -> step step player
-  ogre.enemy_dead         # -> Woohoo!
-  ogre.act!               # -> Acting @coming_back
+  ogre.act!               # Acting @attacking.pursuing
+                          # 3: Attack!
+                          # step step player
+  ogre.enemy_dead         # Woohoo!
+  ogre.act!               # Acting @coming_back
+                          # step step home
 
-  ogre.sight 'player2'    # -> Setting target to player2
-  ogre.acquire            # -> AARGHH!
-  ogre.act!               # -> Acting @attacking.pursuing
-                          # -> step step player2
+  ogre.sight 'player2'    # Setting target to player2
+  ogre.acquire            # AARGHH!
+  ogre.act!               # Acting @attacking.pursuing
+                          # 5: Attack!
+                          # step step player2
   ogre.reached
-  puts ogre.state         # -> attacking.fighting
-  ogre.act!               # -> ~~> player2
-  5.times { ogre.act! }   # -> ...
-  ogre.enemy_dead         # -> Woohoo!
-  ogre.act!               # -> Acting @coming_back
-                          # -> step step home
+  puts ogre.state         # attacking.fighting
+  ogre.act!               # Acting @attacking.fighting
+                          # 6: Attack!
+                          # ~~> player2
+  5.times { ogre.act! }   # ...
+  ogre.enemy_dead         # Woohoo!
+  ogre.act!               # Acting @coming_back
+                          # step step home
   ogre.low_hp = true
   ogre.sight 'player3'
-  ogre.act!               # -> Acting @runaway
+  ogre.act!               # Acting @runaway
 end

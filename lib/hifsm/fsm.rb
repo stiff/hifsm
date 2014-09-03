@@ -1,17 +1,26 @@
 module Hifsm
-  class FSM
-    attr_reader :states, :transitions
 
-    def initialize(parent = nil, &block)
+  # This class holds immutable state machine definition
+  class FSM
+    attr_reader :name, :states, :transitions
+
+    def initialize(name = :state, parent = nil, &block)
+      @name = name
       @parent = parent
       @states = {}
       @initial_state = nil
 
       instance_eval(&block) if block
+
+      @fsm_module = fsm_module = initialize_module
+      @machine_class = Class.new(Hifsm::Machine) do
+        include fsm_module
+        define_method("#{name}_machine") { self }
+      end
     end
 
     def instantiate(target = nil, initial_state = nil)
-      Hifsm::Machine.new(self, target, initial_state)
+      @machine_class.new(self, target, initial_state)
     end
 
     def all_events
@@ -44,15 +53,48 @@ module Hifsm
     end
 
     def state(name, options = {}, &block)
-      st = @states[name.to_s] = Hifsm::State.new(name, @parent)
+      st = @states[name.to_s] = Hifsm::State.new(self, name, @parent)
       @initial_state = st if options[:initial]
       st.instance_eval(&block) if block
+    end
+
+    def to_module
+      @fsm_module
     end
 
     private
       # like in ActiveSupport
       def array_wrap(anything)
         anything.is_a?(Array) ? anything : [anything].compact
+      end
+
+      def initialize_module
+        fsm = self  # capture self
+        machine_var = "@#{name}_machine"
+        machine_name = "#{name}_machine"
+
+        Module.new.module_exec do
+
+          # <state>_machine returns machine instance
+          define_method(machine_name) do
+            if instance_variable_defined?(machine_var)
+              instance_variable_get(machine_var)
+            else
+              machine = fsm.instantiate(self)
+              instance_variable_set(machine_var, machine)
+            end
+          end
+
+          # <state> returns string representation of the current state
+          define_method(fsm.name) { send(machine_name).to_s }
+
+          # <event> fires event
+          fsm.all_events.each do |event_name, event|
+            define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
+          end
+
+          self  # return module
+        end
       end
   end
 end
