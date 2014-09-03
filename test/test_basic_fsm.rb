@@ -26,4 +26,11 @@ class TestBasicFSM < Minitest::Test
     @machine.toggle
     assert_equal 'off', @machine.state
   end
+
+  def test_instantiating_maching_in_unknown_state_raises_error
+    assert_raises(Hifsm::MissingState) do
+      @fsm.instantiate(nil, 'on.no')
+    end
+  end
+
 end
