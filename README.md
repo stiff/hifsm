@@ -1,5 +1,8 @@
 # Hierarchical Finite State Machine in Ruby
 
+[![Build Status](https://travis-ci.org/stiff/hifsm.svg?branch=master)](https://travis-ci.org/stiff/hifsm)
+[![Coverage Status](https://coveralls.io/repos/stiff/hifsm/badge.png?branch=master)](https://coveralls.io/r/stiff/hifsm?branch=master)
+
 This library was created from the desire to have nested states inspired by [rFSM](https://github.com/kmarkus/rFSM).
 
 It can be used in plain old ruby objects, but works well with `ActiveRecord`s too.
