@@ -209,7 +209,10 @@ class Order < ActiveRecord::Base
     event :cancel, :to => :cancelled
   end
 end
-Order.new # draft
+order = Order.create          # draft
+order.start_processing.save   # 'processing.packaging'
+
+Order.find(:state => 'processing.packaging').first.cancel.save
 
 ```
 
