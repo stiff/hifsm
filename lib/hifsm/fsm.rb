@@ -82,16 +82,9 @@ module Hifsm
         machine_var = "@#{name}_machine"
         machine_name = "#{name}_machine"
 
-        module_class_methods = Module.new do
-          define_method("#{machine_name}_definition") { fsm }
-        end
-
         Module.new do
-          const_set('ClassMethods', module_class_methods)
-          def self.included(base)
-            base.class_exec do
-              extend const_get('ClassMethods')
-            end
+          define_singleton_method :included do |base|
+            base.send(:define_singleton_method, "#{machine_name}_definition") { fsm }
           end
 
           # <state>_machine returns machine instance
