@@ -23,24 +23,7 @@ module Hifsm
       @machine_class.new(self, target, initial_state)
     end
 
-    def all_events
-      @states.collect {|name, st| st.events }.flatten.uniq
-    end
-
-    def initial_state!
-      @initial_state || raise(Hifsm::MissingState.new("<initial>"))
-    end
-
-    def get_state!(name)
-      top_level_state, rest = name.to_s.split('.', 2)
-      st = @states[top_level_state] || raise(Hifsm::MissingState.new(name.to_s))
-      if rest
-        st.get_substate!(rest)
-      else
-        st
-      end
-    end
-
+    #DSL
     def event(name, options, &block)
       ev = Hifsm::Event.new(name, get_state!(options[:to]), array_wrap(options[:guard]))
       from_states = array_wrap(options[:from])
@@ -58,6 +41,32 @@ module Hifsm
       st.instance_eval(&block) if block
     end
 
+    # internals
+    def all_events
+      @states.flat_map {|name, st| st.events }.uniq
+    end
+
+    def all_states
+      @states.flat_map do |state_name, st|
+        # state should delegate to sub_fsm :)
+        [st] + (st.sub_fsm && st.sub_fsm.all_states || [])
+      end
+    end
+
+    def initial_state!
+      @initial_state || raise(Hifsm::MissingState.new("<initial>"))
+    end
+
+    def get_state!(name)
+      top_level_state, rest = name.to_s.split('.', 2)
+      st = @states[top_level_state] || raise(Hifsm::MissingState.new(name.to_s))
+      if rest
+        st.get_substate!(rest)
+      else
+        st
+      end
+    end
+
     def to_module
       @fsm_module
     end
@@ -73,7 +82,17 @@ module Hifsm
         machine_var = "@#{name}_machine"
         machine_name = "#{name}_machine"
 
-        Module.new.module_exec do
+        module_class_methods = Module.new do
+          define_method("#{machine_name}_definition") { fsm }
+        end
+
+        Module.new do
+          const_set('ClassMethods', module_class_methods)
+          def self.included(base)
+            base.class_exec do
+              extend const_get('ClassMethods')
+            end
+          end
 
           # <state>_machine returns machine instance
           define_method(machine_name) do
@@ -92,8 +111,6 @@ module Hifsm
           fsm.all_events.each do |event_name, event|
             define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
           end
-
-          self  # return module
         end
       end
   end

@@ -2,6 +2,8 @@ module Hifsm
   class State
     CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit].freeze
 
+    attr_reader :sub_fsm
+
     def initialize(fsm, name, parent = nil)
       @fsm = fsm
       @name = name
@@ -13,11 +15,7 @@ module Hifsm
       @transitions = Hash.new {|h, key| h[key] = Array.new }
     end
 
-    def add_transition(ev)
-      name = ev.name.to_s
-      @transitions[name].push ev
-    end
-
+    # DSL
     def action(&block)
       @action = block
     end
@@ -30,8 +28,36 @@ module Hifsm
       sub_fsm!.event(*args, &block)
     end
 
+    CALLBACKS.each do |cb|
+      define_method(cb) { |&block| @callbacks[cb].add(&block) }
+    end
+
+    # internals
+    def act!(target, *args)
+      @parent.act!(target, *args) if @parent
+      @action && Callbacks.invoke(target, @action, *args)
+    end
+
+    def add_transition(ev)
+      name = ev.name.to_s
+      @transitions[name].push ev
+    end
+
+    def enter!
+      if @sub_fsm
+        @sub_fsm.initial_state!
+      else
+        self
+      end
+    end
+
     def events
       @transitions.keys + (@sub_fsm && @sub_fsm.all_events || [])
+    end
+
+    def get_substate!(name)
+      raise Hifsm::MissingState.new(name.to_s) unless @sub_fsm
+      @sub_fsm.get_state!(name)
     end
 
     def fire(target, event_name, *args, &new_state_callback)
@@ -57,30 +83,8 @@ module Hifsm
       raise Hifsm::MissingTransition.new(to_s, event_name)
     end
 
-    CALLBACKS.each do |cb|
-      define_method(cb) { |&block| @callbacks[cb].add(&block) }
-    end
-
     def trigger(target, cb, *args)
       @callbacks[cb].trigger(target, *args)
-    end
-
-    def act!(target, *args)
-      @parent.act!(target, *args) if @parent
-      @action && Callbacks.invoke(target, @action, *args)
-    end
-
-    def enter!
-      if @sub_fsm
-        @sub_fsm.initial_state!
-      else
-        self
-      end
-    end
-
-    def get_substate!(name)
-      raise Hifsm::MissingState.new(name.to_s) unless @sub_fsm
-      @sub_fsm.get_state!(name)
     end
 
     def to_s
@@ -93,7 +97,7 @@ module Hifsm
 
     private
       def sub_fsm!
-        # FIXME too much coupling
+        # FIXME .name = too much coupling
         @sub_fsm ||= Hifsm::FSM.new(@fsm.name, self)
       end
   end

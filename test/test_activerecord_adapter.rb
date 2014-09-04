@@ -69,6 +69,14 @@ class TestActiverecrodAdapter < Minitest::Test
     assert_equal 'off', SodaMachine.where(:id => @machine.id).pluck(:state).first
   end
 
+  def test_leaf_scope
+    refute_nil SodaMachine.broken.first
+  end
+
+  def test_parent_scope
+    refute_nil SodaMachine.on.first
+  end
+
   private
     def insert_record(address, state)
       insert_manager = Arel::InsertManager.new(SodaMachine)

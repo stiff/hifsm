@@ -21,7 +21,7 @@ Or install it yourself as:
 
     $ gem install hifsm
 
-I prefer 1.8-style hashes, and since no advanced Ruby magic used it should work in 1.8, but only tested in 2+.
+Written in Ruby 1.8-style (hashes, lambdas), but few non-essential 1.9 niceties used, tested in 2+.
 
 __This is in early development, so be careful.__
 
@@ -196,23 +196,28 @@ Add column to your database which would hold the state, and then:
 
 ```ruby
 class Order < ActiveRecord::Base
-  hifsm do
+  hifsm :status do
     state :draft, :initial => true
     state :processing do
       state :packaging, :initial => true
       state :delivering
+
+      event :start_delivery, :from => :packaging, :to => :delivering
     end
     state :done
     state :cancelled
 
     event :start_processing, :from => :draft, :to => :processing
-    event :cancel, :to => :cancelled
+    event :cancel!, :to => :cancelled
   end
 end
 order = Order.create          # draft
 order.start_processing.save   # 'processing.packaging'
 
-Order.find(:state => 'processing.packaging').first.cancel.save
+# scopes defined automatically. parent scopes looked up via like "processing.%"
+Order.processing.first.start_delivery.save
+Order.processing_packaging.first                # nil
+Order.processing_delivering.first.cancel!.save  # save is never called inisde hifsm
 
 ```
 
