@@ -2,7 +2,8 @@ require 'setup_tests'
 
 class TestDynamicInitialState < Minitest::Test
   class Value < Struct.new(:value)
-    include Hifsm.fsm_module(:group) {
+    include Hifsm
+    hifsm :group do
       state :few do
         state :very
         state :almost
@@ -13,7 +14,7 @@ class TestDynamicInitialState < Minitest::Test
       end
       state :throng
       state :swarm
-    }
+    end
 
     def initial_group
       case value

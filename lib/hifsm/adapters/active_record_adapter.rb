@@ -9,7 +9,8 @@ module Hifsm
 
       module ClassMethods
         def hifsm(column, &block)
-          include Hifsm.fsm_module(column, &block)
+          super
+
           before_save "hifsm_write_#{column}_attribute"
 
           send("#{column}_machine_definition").all_states.each do |st|
@@ -40,5 +41,6 @@ module Hifsm
 end
 
 ActiveRecord::Base.class_eval do
+  include Hifsm
   include Hifsm::Adapters::ActiveRecordAdapter
 end

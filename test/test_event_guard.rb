@@ -2,7 +2,9 @@ require 'setup_tests'
 
 class TestEventGuard < Minitest::Test
   class Wall < Struct.new(:stones)
-    include Hifsm.fsm_module {
+    include Hifsm
+
+    hifsm do
       state :constructed, :initial => true
       state :broken
 
@@ -11,7 +13,8 @@ class TestEventGuard < Minitest::Test
 
       # event parameters are passed to guards only if arity > 0
       event :shoot, :from => :constructed, :to => :broken, :guard => :breakable?
-    }
+    end
+
     def breakable?(hits)
       hits * 5 > stones
     end

@@ -2,7 +2,8 @@ require 'setup_tests'
 
 class TestIflessFactorial < Minitest::Test
   class Value < Struct.new(:value)
-    include Hifsm.fsm_module {
+    include Hifsm
+    hifsm do
       state :idle, :initial => true
       state :computing
 
@@ -16,7 +17,7 @@ class TestIflessFactorial < Minitest::Test
           self.value *= x
         end
       end
-    }
+    end
   end
 
   def factorial(n)

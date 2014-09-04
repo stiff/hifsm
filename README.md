@@ -42,7 +42,9 @@ Here is how to use it to model a monster in a Quake-like game. It covers most Hi
 require 'hifsm'
 
 class Monster
-  include Hifsm.fsm_module {
+  include Hifsm
+
+  hifsm do
     state :idle, :initial => true
     state :attacking do
       state :acquiring_target, :initial => true do
@@ -92,7 +94,7 @@ class Monster
         self.target = nil
       end
     end
-  }
+  end
 
   attr_accessor :target, :low_hp, :debug
 
@@ -103,11 +105,13 @@ class Monster
     @low_hp = false
   end
 
-  def act!
+  def act_with_tick!
     debug && puts("Acting @#{state}")
-    state_machine.act! @tick
+    act_without_tick! @tick
     @tick = @tick + 1
   end
+  alias_method :act_without_tick!, :act!
+  alias_method :act!, :act_with_tick!
 
   def hit(target)
     debug && puts("~~> #{target}")
@@ -167,8 +171,6 @@ ogre.sight 'player3'
 ogre.act!               # Acting @runaway
 
 ```
-
-Note the use of `{..}` construct instead of `do..end` in `include`. `do..end` is treated as block for include itself, instead of `fsm_module`.
 
 ## Guards
 
