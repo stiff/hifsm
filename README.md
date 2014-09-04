@@ -168,6 +168,8 @@ ogre.act!               # Acting @runaway
 
 ```
 
+Note the use of `{..}` construct instead of `do..end` in `include`. `do..end` is treated as block for include itself, instead of `fsm_module`.
+
 ## Guards
 
 Events are tried in order they were defined, if guard callback returns `false` then event is skipped.
@@ -187,6 +189,29 @@ On event:
 If any of `before...` callbacks returns `false` then no further processing is done, no exceptions raised, machine state is not changed.
 
 On `act!` just calls action block if it was given.
+
+## ActiveRecord integration
+
+Add column to your database which would hold the state, and then:
+
+```ruby
+class Order < ActiveRecord::Base
+  hifsm do
+    state :draft, :initial => true
+    state :processing do
+      state :packaging, :initial => true
+      state :delivering
+    end
+    state :done
+    state :cancelled
+
+    event :start_processing, :from => :draft, :to => :processing
+    event :cancel, :to => :cancelled
+  end
+end
+Order.new # draft
+
+```
 
 ## Testing
 
