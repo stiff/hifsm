@@ -28,6 +28,11 @@ class TestTwoMachines < Minitest::Test
     @color_printer = ColorPrinter.new
   end
 
+  def test_two_machines_defined
+    assert_equal 'off', @color_printer.working_state_machine.state
+    assert_equal 'red', @color_printer.color_machine.color
+  end
+
   def test_initial_state_is_off_and_red
     assert_equal 'off', @color_printer.working_state
     assert_equal 'red', @color_printer.color
