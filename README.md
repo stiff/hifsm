@@ -172,7 +172,7 @@ Note the use of `{..}` construct instead of `do..end` in `include`. `do..end` is
 
 ## Guards
 
-Events are tried in order they were defined, if guard callback returns `false` then event is skipped.
+Events are tried in order they were defined, if guard callback returns `false` then event is skipped as if it was not defined at all.
 
 ## Callbacks
 
