@@ -12,10 +12,10 @@ class TestEventGuard < Minitest::Test
       event :break, :from => :constructed, :to => :broken, :guard => proc { stones < 5 }
 
       # event parameters are passed to guards only if arity > 0
-      event :shoot, :from => :constructed, :to => :broken, :guard => :breakable?
+      event :break, :from => :constructed, :to => :broken, :guard => :breakable?
     end
 
-    def breakable?(hits)
+    def breakable?(hits = 1)
       hits * 5 > stones
     end
   end
@@ -35,7 +35,7 @@ class TestEventGuard < Minitest::Test
 
   def test_can_break_thick_wall_if_hit_3_times
     wall = Wall.new(10)
-    wall.shoot 3
+    wall.break 3
     assert_equal 'broken', wall.state
   end
 

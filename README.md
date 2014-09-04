@@ -36,6 +36,8 @@ __This is in early development, so be careful.__
 
 ## Usage
 
+Start with the [basic example](https://github.com/stiff/hifsm/blob/master/test/test_basic_fsm.rb) and then try [something](https://github.com/stiff/hifsm/blob/master/test/test_hierarchical.rb) [more](https://github.com/stiff/hifsm/blob/master/test/test_many_states.rb) [interesting](https://github.com/stiff/hifsm/blob/master/test/test_dynamic_initial_state.rb).
+
 Here is how to use it to model a monster in a Quake-like game. It covers most Hifsm features:
 
 ```ruby
@@ -174,7 +176,7 @@ ogre.act!               # Acting @runaway
 
 ## Guards
 
-Events are tried in order they were defined, if guard callback returns `false` then event is skipped as if it was not defined at all.
+Events are tried in order they were defined, if guard callback returns `false` then event is skipped as if it was not defined at all. See [example of this](https://github.com/stiff/hifsm/blob/master/test/test_event_guard.rb).
 
 ## Callbacks
 
@@ -190,7 +192,7 @@ On event:
 
 If any of `before...` callbacks returns `false` then no further processing is done, no exceptions raised, machine state is not changed.
 
-On `act!` just calls action block if it was given.
+On `act!` state's actions called from top state to nested. If [several FSMs defined]](https://github.com/stiff/hifsm/blob/master/test/test_two_machines.rb), object's `act!` invokes them all in order as they were defined and returns value from last action.
 
 ## ActiveRecord integration
 

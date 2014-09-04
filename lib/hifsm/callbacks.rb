@@ -4,10 +4,10 @@ class Callbacks
     def invoke(target, cb, *args)
       if cb.nil?
       elsif cb.is_a? Symbol
-        if target.method(cb).arity > 0
-          target.send(cb, *args)
-        else
+        if target.method(cb).arity.zero?
           target.send(cb)
+        else
+          target.send(cb, *args)
         end
       else
         target.instance_exec(*args, &cb)
