@@ -4,10 +4,6 @@ class Callbacks
     @listeners = listeners
   end
 
-  def add(symbol = nil, &callback)
-    @listeners.push symbol || callback
-  end
-
   def trigger(target, *args)
     @listeners.map do |cb|
       if cb.nil?
