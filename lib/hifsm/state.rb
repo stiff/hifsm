@@ -9,13 +9,9 @@ module Hifsm
       @parent = parent
       @callbacks = {}
       CALLBACKS.each do |cb|
-        @callbacks[cb] = handler = Callbacks.new
-        options[cb].each do |h|
-          handler.add h
-        end
+        @callbacks[cb] = Callbacks.new(options[cb])
       end
       @transitions = Hash.new {|h, key| h[key] = Array.new }
-
 
       if options[:sub_states].empty?
         @sub_fsm = nil
