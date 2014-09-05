@@ -4,18 +4,17 @@ module Hifsm
 
     attr_reader :name, :to
 
-    def initialize(name, to, guards)
+    def initialize(name, to, callbacks_options)
       @name = name
       @to = to
-      @callbacks = Hash.new {|h, key| h[key] = Callbacks.new }
+      @callbacks = {}
 
-      guards.each do |g|
-        @callbacks[:guard].add g
+      CALLBACKS.each do |cb|
+        @callbacks[cb] = handler = Callbacks.new
+        callbacks_options[cb].each do |h|
+          handler.add h
+        end
       end
-    end
-
-    CALLBACKS.each do |cb|
-      define_method(cb) { |&block| @callbacks[cb].add(&block) }
     end
 
     def trigger(target, cb, *args)

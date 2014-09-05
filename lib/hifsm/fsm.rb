@@ -27,15 +27,20 @@ module Hifsm
     end
 
     #DSL
-    def event(name, options, &block)
-      ev = Hifsm::Event.new(name, get_state!(options[:to]), array_wrap(options[:guard]))
-      from_states = array_wrap(options[:from])
-      from_states = @states.keys if from_states.empty?
-      from_states.each do |from|
-        st = get_state!(from)
-        st.add_transition(ev)
+    def event(name, options = {}, &block)
+      Hifsm::DSL::EventBuilder.new(options, &block).each do |ev_def|
+        ev = Hifsm::Event.new name,
+                              get_state!(ev_def[:to]),
+                              ev_def
+
+        from_states = ev_def[:from]
+        from_states = @states.keys if from_states.empty?
+        from_states.each do |from|
+          st = get_state!(from)
+          st.add_transition(ev)
+        end
+
       end
-      ev.instance_eval(&block) if block
     end
 
     def state(name, options = {}, &block)
@@ -75,11 +80,6 @@ module Hifsm
     end
 
     private
-      # like in ActiveSupport
-      def array_wrap(anything)
-        anything.is_a?(Array) ? anything : [anything].compact
-      end
-
       def get_fsm_module
         @fsm_module ||= begin
           fsm = self  # capture self

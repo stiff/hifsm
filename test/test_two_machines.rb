@@ -13,9 +13,11 @@ class TestTwoMachines < Minitest::Test
         end
       end
 
-      event :cycle_color!, :from => :red, :to => :green
-      event :cycle_color!, :from => :green, :to => :blue
-      event :cycle_color!, :from => :blue, :to => :red
+      event :cycle_color! do
+        from :red, :to => :green
+        from :green, :to => :blue
+        from :blue, :to => :red
+      end
     end
 
     hifsm :working_state do
