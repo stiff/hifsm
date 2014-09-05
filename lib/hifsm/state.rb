@@ -4,8 +4,7 @@ module Hifsm
 
     attr_reader :sub_fsm
 
-    def initialize(fsm, name, parent = nil)
-      @fsm = fsm
+    def initialize(name, parent = nil)
       @name = name
       @parent = parent
       @action = nil
@@ -97,8 +96,7 @@ module Hifsm
 
     private
       def sub_fsm!
-        # FIXME .name = too much coupling
-        @sub_fsm ||= Hifsm::FSM.new(@fsm.name, self)
+        @sub_fsm ||= Hifsm::FSM.new(nil, self)
       end
   end
 end

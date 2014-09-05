@@ -12,14 +12,17 @@ module Hifsm
 
       instance_eval(&block) if block
 
-      @fsm_module = fsm_module = initialize_module
-      @machine_class = Class.new(Hifsm::Machine) do
-        include fsm_module
-        define_method("#{name}_machine") { self }
-      end
+      @fsm_module = nil
+      @machine_class = nil
     end
 
     def instantiate(target = nil, initial_state = nil)
+      fsm_module = get_fsm_module
+      machine_name = "#{name}_machine"
+      @machine_class ||= Class.new(Hifsm::Machine) do
+        include fsm_module
+        define_method(machine_name) { self }
+      end
       @machine_class.new(self, target, initial_state)
     end
 
@@ -36,7 +39,7 @@ module Hifsm
     end
 
     def state(name, options = {}, &block)
-      st = @states[name.to_s] = Hifsm::State.new(self, name, @parent)
+      st = @states[name.to_s] = Hifsm::State.new(name, @parent)
       @initial_state = st if options[:initial]
       st.instance_eval(&block) if block
     end
@@ -68,7 +71,7 @@ module Hifsm
     end
 
     def to_module
-      @fsm_module
+      get_fsm_module
     end
 
     private
@@ -77,32 +80,34 @@ module Hifsm
         anything.is_a?(Array) ? anything : [anything].compact
       end
 
-      def initialize_module
-        fsm = self  # capture self
-        machine_var = "@#{name}_machine"
-        machine_name = "#{name}_machine"
+      def get_fsm_module
+        @fsm_module ||= begin
+          fsm = self  # capture self
+          machine_var = "@#{name}_machine"
+          machine_name = "#{name}_machine"
 
-        Module.new do
-          define_singleton_method :included do |base|
-            base.send(:define_singleton_method, "#{machine_name}_definition") { fsm }
-          end
-
-          # <state>_machine returns machine instance
-          define_method(machine_name) do
-            if instance_variable_defined?(machine_var)
-              instance_variable_get(machine_var)
-            else
-              machine = fsm.instantiate(self)
-              instance_variable_set(machine_var, machine)
+          Module.new do
+            define_singleton_method :included do |base|
+              base.send(:define_singleton_method, "#{machine_name}_definition") { fsm }
             end
-          end
 
-          # <state> returns string representation of the current state
-          define_method(fsm.name) { send(machine_name).to_s }
+            # <state>_machine returns machine instance
+            define_method(machine_name) do
+              if instance_variable_defined?(machine_var)
+                instance_variable_get(machine_var)
+              else
+                machine = fsm.instantiate(self)
+                instance_variable_set(machine_var, machine)
+              end
+            end
 
-          # <event> fires event
-          fsm.all_events.each do |event_name, event|
-            define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
+            # <state> returns string representation of the current state
+            define_method(fsm.name) { send(machine_name).to_s }
+
+            # <event> fires event
+            fsm.all_events.each do |event_name, event|
+              define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
+            end
           end
         end
       end
