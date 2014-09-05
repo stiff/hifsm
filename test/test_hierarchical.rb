@@ -5,7 +5,10 @@ class TestHierarchical < Minitest::Test
     @fsm = Hifsm::FSM.new do
       async = proc do
         state :pending, :initial => true
-        state :sync
+        state :sync do
+          state :third_level, :initial => true
+          state :third_level_two
+        end
 
         event :sync, :from => :pending, :to => :sync
       end
@@ -25,7 +28,7 @@ class TestHierarchical < Minitest::Test
 
   def test_explicit_initial_state
     machine2 = @fsm.instantiate(nil, 'on.sync')
-    assert_equal 'on.sync', machine2.state
+    assert_equal 'on.sync.third_level', machine2.state
     machine2.toggle
     pass # assert_nothing_raised
   end
@@ -40,7 +43,7 @@ class TestHierarchical < Minitest::Test
   def test_sync
     machine = @fsm.instantiate
     machine.sync
-    assert_equal 'off.sync', machine.state
+    assert_equal 'off.sync.third_level', machine.state
   end
 
   def test_toggle_from_off_sync_to_on_pending
@@ -53,6 +56,6 @@ class TestHierarchical < Minitest::Test
   def test_toggle_from_on_sync_to_off_sync
     machine2 = @fsm.instantiate(nil, 'on.sync')
     machine2.toggle
-    assert_equal 'off.sync', machine2.state
+    assert_equal 'off.sync.third_level', machine2.state
   end
 end

@@ -34,7 +34,7 @@ module Hifsm
 
     def enter!
       if @sub_fsm
-        @sub_fsm.initial_state!
+        @sub_fsm.initial_state!.enter!
       else
         self
       end
