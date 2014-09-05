@@ -1,40 +1,34 @@
 module Hifsm
   class State
-    CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit].freeze
+    CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit, :action].freeze
 
     attr_reader :sub_fsm
 
-    def initialize(name, parent = nil)
+    def initialize(name, parent = nil, options)
       @name = name
       @parent = parent
-      @action = nil
-      @sub_fsm = nil
-
-      @callbacks = Hash.new {|h, key| h[key] = Callbacks.new }
+      @callbacks = {}
+      CALLBACKS.each do |cb|
+        @callbacks[cb] = handler = Callbacks.new
+        options[cb].each do |h|
+          handler.add h
+        end
+      end
       @transitions = Hash.new {|h, key| h[key] = Array.new }
+
+
+      if options[:sub_states].empty?
+        @sub_fsm = nil
+      else
+        @sub_fsm = Hifsm::FSM.new(nil, self)
+        options[:sub_states].each {|args, block| @sub_fsm.state(*args, &block) }
+        options[:sub_events].each {|args, block| @sub_fsm.event(*args, &block) }
+      end
     end
 
-    # DSL
-    def action(&block)
-      @action = block
-    end
-
-    def state(*args, &block)
-      sub_fsm!.state(*args, &block)
-    end
-
-    def event(*args, &block)
-      sub_fsm!.event(*args, &block)
-    end
-
-    CALLBACKS.each do |cb|
-      define_method(cb) { |&block| @callbacks[cb].add(&block) }
-    end
-
-    # internals
     def act!(target, *args)
       @parent.act!(target, *args) if @parent
-      @action && Callbacks.invoke(target, @action, *args)
+      trigger(target, :action, *args).last
     end
 
     def add_transition(ev)
@@ -93,10 +87,5 @@ module Hifsm
         @name.to_s
       end
     end
-
-    private
-      def sub_fsm!
-        @sub_fsm ||= Hifsm::FSM.new(nil, self)
-      end
   end
 end

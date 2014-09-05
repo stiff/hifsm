@@ -44,9 +44,10 @@ module Hifsm
     end
 
     def state(name, options = {}, &block)
-      st = @states[name.to_s] = Hifsm::State.new(name, @parent)
-      @initial_state = st if options[:initial]
-      st.instance_eval(&block) if block
+      Hifsm::DSL::StateBuilder.new(options, &block).each do |st_def|
+        st = @states[name.to_s] = Hifsm::State.new(name, @parent, st_def)
+        @initial_state = st if options[:initial]
+      end
     end
 
     # internals

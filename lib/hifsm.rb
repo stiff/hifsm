@@ -3,7 +3,9 @@ require "hifsm/fsm"
 require "hifsm/event"
 require "hifsm/machine"
 require "hifsm/state"
+require "hifsm/dsl/abstract_builder"
 require "hifsm/dsl/event_builder"
+require "hifsm/dsl/state_builder"
 require "hifsm/version"
 
 module Hifsm

@@ -8,7 +8,6 @@ module Hifsm
       @name = name
       @to = to
       @callbacks = {}
-
       CALLBACKS.each do |cb|
         @callbacks[cb] = handler = Callbacks.new
         callbacks_options[cb].each do |h|
