@@ -17,10 +17,10 @@ module Hifsm
     end
 
     def instantiate(target = nil, initial_state = nil)
-      fsm_module = get_fsm_module
+      machine_module = get_machine_module
       machine_name = "#{name}_machine"
       @machine_class ||= Class.new(Hifsm::Machine) do
-        include fsm_module
+        include machine_module
         define_method(machine_name) { self }
       end
       @machine_class.new(self, target, initial_state)
@@ -81,35 +81,51 @@ module Hifsm
     end
 
     private
+      def get_machine_module
+        fsm = self  # capture self
+        machine_name = "#{name}_machine"
+        @machine_module ||= Module.new do
+          # <event> fires event
+          fsm.all_events.each do |event_name, event|
+            define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
+          end
+        end
+      end
+
       def get_fsm_module
-        @fsm_module ||= begin
-          fsm = self  # capture self
-          machine_var = "@#{name}_machine"
-          machine_name = "#{name}_machine"
+        fsm = self  # capture self
+        machine_var = "@#{name}_machine"
+        machine_name = "#{name}_machine"
+        machine_module = get_machine_module
+        @fsm_module ||= Module.new do
+          include machine_module
 
-          Module.new do
-            define_singleton_method :included do |base|
-              base.send(:define_singleton_method, "#{machine_name}_definition") { fsm }
-            end
+          define_singleton_method :included do |base|
+            base.class_eval do
+              define_singleton_method("#{machine_name}_definition") { fsm }
 
-            # <state>_machine returns machine instance
-            define_method(machine_name) do
-              if instance_variable_defined?(machine_var)
-                instance_variable_get(machine_var)
-              else
-                machine = fsm.instantiate(self)
-                instance_variable_set(machine_var, machine)
+              # act!
+              define_method "act_with_#{machine_name}!" do |*args|
+                send("act_without_#{machine_name}!", *args) if respond_to?("act_without_#{machine_name}!")
+                send("#{machine_name}").act!(*args)
               end
-            end
-
-            # <state> returns string representation of the current state
-            define_method(fsm.name) { send(machine_name).to_s }
-
-            # <event> fires event
-            fsm.all_events.each do |event_name, event|
-              define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
+              alias_method "act_without_#{machine_name}!", :act! if method_defined?(:act!)
+              alias_method :act!, "act_with_#{machine_name}!"
             end
           end
+
+          # <state>_machine returns machine instance
+          define_method(machine_name) do
+            if instance_variable_defined?(machine_var)
+              instance_variable_get(machine_var)
+            else
+              machine = fsm.instantiate(self)
+              instance_variable_set(machine_var, machine)
+            end
+          end
+
+          # <state> returns string representation of the current state
+          define_method(fsm.name) { send(machine_name).to_s }
         end
       end
   end

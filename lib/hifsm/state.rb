@@ -2,10 +2,10 @@ module Hifsm
   class State
     CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit, :action].freeze
 
-    attr_reader :sub_fsm
+    attr_reader :name, :sub_fsm
 
     def initialize(name, parent = nil, options)
-      @name = name
+      @name = name.to_s
       @parent = parent
       @callbacks = {}
       CALLBACKS.each do |cb|
@@ -78,9 +78,9 @@ module Hifsm
 
     def to_s
       if @parent
-        "#{@parent.to_s}.#{@name.to_s}"
+        "#{@parent.to_s}.#{@name}"
       else
-        @name.to_s
+        @name
       end
     end
   end

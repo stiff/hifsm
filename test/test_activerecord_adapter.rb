@@ -48,7 +48,7 @@ class TestActiverecrodAdapter < Minitest::Test
 
   def test_new_machines_saved_in_initial_state
     @machine = SodaMachine.create
-    assert_equal 'off', @machine.state_machine.state
+    assert_equal 'off', @machine.state_machine.state.to_s
     assert_equal 'off', @machine.state
   end
 

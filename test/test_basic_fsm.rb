@@ -13,18 +13,18 @@ class TestBasicFSM < Minitest::Test
   end
 
   def test_initial_state_is_off
-    assert_equal 'off', @machine.state
+    assert_equal 'off', @machine.state.to_s
   end
 
   def test_toggle_switches_state_to_on
     @machine.toggle
-    assert_equal 'on', @machine.state
+    assert_equal 'on', @machine.state.to_s
   end
 
   def test_toggle_twice_switches_state_back_to_off
     @machine.toggle
     @machine.toggle
-    assert_equal 'off', @machine.state
+    assert_equal 'off', @machine.state.to_s
   end
 
   def test_instantiating_maching_in_unknown_state_raises_error

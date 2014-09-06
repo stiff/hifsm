@@ -18,7 +18,15 @@ module Hifsm
     end
 
     def state
-      @state.to_s
+      @state
+    end
+
+    def states
+      @fsm.states.keys
+    end
+
+    def all_states
+      @fsm.all_states.reject(&:sub_fsm).collect(&:to_s)
     end
 
     def fire(event, *args)

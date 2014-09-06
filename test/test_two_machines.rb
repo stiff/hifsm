@@ -38,8 +38,9 @@ class TestTwoMachines < Minitest::Test
   end
 
   def test_two_machines_defined
-    assert_equal 'off', @color_printer.working_state_machine.state
-    assert_equal 'red', @color_printer.color_machine.color
+    assert_equal 'off', @color_printer.working_state_machine.state.to_s
+    assert_equal 'red', @color_printer.color_machine.state.to_s
+    assert_equal 'red', @color_printer.color # alias for color_mathine.state.to_s
   end
 
   def test_initial_state_is_off_and_red

@@ -16,13 +16,17 @@ class TestAnyStateEvent < Minitest::Test
 
   def test_halt_from_off
     @machine.halt
-    assert_equal 'halt', @machine.state
+    assert_equal 'halt', @machine.state.to_s
   end
 
   def test_halt_from_on
     @machine.toggle
     @machine.halt
-    assert_equal 'halt', @machine.state
+    assert_equal 'halt', @machine.state.to_s
+  end
+
+  def test_event_is_added_to_states
+    assert_equal ['toggle', 'halt'], @machine.state.events
   end
 
 end

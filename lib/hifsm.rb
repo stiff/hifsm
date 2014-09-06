@@ -28,14 +28,6 @@ module Hifsm
   module ClassMethods
     def hifsm(name = :state, &block)
       include FSM::new(name, &block).to_module
-
-      # act!
-      define_method("act_with_#{name}_machine!") do |*args|
-        send("act_without_#{name}_machine!", *args) if respond_to?("act_without_#{name}_machine!")
-        send("#{name}_machine").act!(*args)
-      end
-      alias_method "act_without_#{name}_machine!", :act! if method_defined?(:act!)
-      alias_method :act!, "act_with_#{name}_machine!"
     end
   end
 end
