@@ -15,6 +15,7 @@ class Monster
       state :pursuing do
         before_enter do
           self.roar!
+          true # since roar! returns nil it would stop processing
         end
         action do
           step_towards target

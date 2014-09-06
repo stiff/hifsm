@@ -55,9 +55,9 @@ module Hifsm
         if ev.guard?(target, *args)
           from_state = self
           to_state = ev.to
-          if ev.trigger(target, :before, *args) &&
-              to_state.trigger(target, :before_enter, *args) &&
-              from_state.trigger(target, :before_exit, *args)
+          if ev.trigger(target, :before, *args).all? &&
+              to_state.trigger(target, :before_enter, *args).all? &&
+              from_state.trigger(target, :before_exit, *args).all?
             new_state_callback.call(to_state.enter!)
             from_state.trigger(target, :after_exit, *args)
             to_state.trigger(target, :after_enter, *args)
