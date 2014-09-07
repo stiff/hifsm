@@ -2,8 +2,9 @@ module Hifsm
 
   # This class holds immutable state machine definition
   class FSM
-    attr_reader :name, :states, :transitions
+    attr_reader :name, :transitions
 
+    # public API
     def initialize(name = :state, parent = nil, &block)
       @name = name
       @parent = parent
@@ -24,6 +25,10 @@ module Hifsm
         define_method(machine_name) { self }
       end
       @machine_class.new(self, target, initial_state)
+    end
+
+    def states
+      @states.keys
     end
 
     #DSL

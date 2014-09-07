@@ -22,7 +22,7 @@ module Hifsm
     end
 
     def states
-      @fsm.states.keys
+      @fsm.states
     end
 
     def all_states
