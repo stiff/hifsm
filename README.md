@@ -58,7 +58,7 @@ class Monster
       state :pursuing do
         before_enter do
           self.roar!
-          true # since roar! returns nil it would stop processing
+          true # since it would stop processing if roar! returns false
         end
         action do
           step_towards target
@@ -191,7 +191,7 @@ On event:
 * to_state.after_enter
 * event.after
 
-If any of `before...` callbacks returns `false` then no further processing is done, no exceptions raised, machine state is not changed.
+If any of `before...` callbacks returns `false` (literally, `nil` equals to `true` here) then no further processing is done, no exceptions raised, machine state is not changed.
 
 On `act!` state's actions called from top state to nested. If [several FSMs defined](https://github.com/stiff/hifsm/blob/master/test/test_two_machines.rb), object's `act!` invokes them all in order as they were defined and returns value from last action.
 

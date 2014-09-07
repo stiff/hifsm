@@ -25,6 +25,7 @@ class TestGrouppedTransitions < Minitest::Test
     attr_accessor :disable_on_click, :log
 
     def initialize
+      self.disable_on_click = false # nil = true, same as for callbacks
       self.log = []
     end
   end

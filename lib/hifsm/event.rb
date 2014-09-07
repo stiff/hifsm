@@ -1,5 +1,7 @@
 module Hifsm
   class Event
+    include Hifsm::Callbacks
+
     CALLBACKS = [:before, :after, :guard].freeze
 
     attr_reader :name, :to
@@ -7,18 +9,13 @@ module Hifsm
     def initialize(name, to, callbacks_options)
       @name = name
       @to = to
-      @callbacks = {}
       CALLBACKS.each do |cb|
-        @callbacks[cb] = Callbacks.new(callbacks_options[cb])
+        set_callbacks cb, callbacks_options[cb]
       end
     end
 
-    def trigger(target, cb, *args)
-      @callbacks[cb].trigger(target, *args)
-    end
-
     def guard?(target, *args)
-      trigger(target, :guard, *args).all?
+      trigger?(:guard, target, *args)
     end
   end
 end

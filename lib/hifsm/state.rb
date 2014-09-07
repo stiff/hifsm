@@ -1,5 +1,7 @@
 module Hifsm
   class State
+    include Hifsm::Callbacks
+
     CALLBACKS = [:before_enter, :before_exit, :after_enter, :after_exit, :action].freeze
 
     attr_reader :name, :sub_fsm
@@ -7,9 +9,8 @@ module Hifsm
     def initialize(name, parent = nil, options)
       @name = name.to_s
       @parent = parent
-      @callbacks = {}
       CALLBACKS.each do |cb|
-        @callbacks[cb] = Callbacks.new(options[cb])
+        set_callbacks cb, options[cb]
       end
       @transitions = Hash.new {|h, key| h[key] = Array.new }
 
@@ -24,7 +25,7 @@ module Hifsm
 
     def act!(target, *args)
       @parent.act!(target, *args) if @parent
-      trigger(target, :action, *args).last
+      trigger(:action, target, *args).last
     end
 
     def add_transition(ev)
@@ -55,13 +56,13 @@ module Hifsm
         if ev.guard?(target, *args)
           from_state = self
           to_state = ev.to
-          if ev.trigger(target, :before, *args).all? &&
-              to_state.trigger(target, :before_enter, *args).all? &&
-              from_state.trigger(target, :before_exit, *args).all?
+          if ev.trigger?(:before, target, *args) &&
+              to_state.trigger?(:before_enter, target, *args) &&
+              from_state.trigger?(:before_exit, target, *args)
             new_state_callback.call(to_state.enter!)
-            from_state.trigger(target, :after_exit, *args)
-            to_state.trigger(target, :after_enter, *args)
-            ev.trigger(target, :after, *args)
+            from_state.trigger(:after_exit, target, *args)
+            to_state.trigger(:after_enter, target, *args)
+            ev.trigger(:after, target, *args)
           end
           return target
         end
@@ -70,10 +71,6 @@ module Hifsm
         return @parent.fire(target, event_name, *args, &new_state_callback)
       end
       raise Hifsm::MissingTransition.new(to_s, event_name)
-    end
-
-    def trigger(target, cb, *args)
-      @callbacks[cb].trigger(target, *args)
     end
 
     def to_s

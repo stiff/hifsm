@@ -8,7 +8,11 @@ class TestBeforeReturningFalse < Minitest::Test
       state :open
       state :closed, :initial => true do
         state :unlocked, :initial => true
-        state :locked
+        state :locked do
+          before_enter do
+            nil # nil equals true in this case, like in Rails
+          end
+        end
 
         event :lock, :from => :unlocked, :to => :locked
       end
