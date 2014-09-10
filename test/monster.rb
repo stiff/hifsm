@@ -1,7 +1,7 @@
 require 'hifsm'
 
 class Monster
-  include Hifsm
+  extend Hifsm
 
   hifsm do
     state :idle, :initial => true

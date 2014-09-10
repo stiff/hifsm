@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestTwoMachines < Minitest::Test
   class ColorPrinter < Struct.new(:log)
-    include Hifsm
+    extend Hifsm
 
     hifsm :color do
       state :red, :initial => true

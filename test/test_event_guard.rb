@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestEventGuard < Minitest::Test
   class Wall < Struct.new(:stones)
-    include Hifsm
+    extend Hifsm
 
     hifsm do
       state :constructed, :initial => true

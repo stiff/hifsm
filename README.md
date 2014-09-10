@@ -23,8 +23,6 @@ Or install it yourself as:
 
 Written in Ruby 1.8-style (hashes, lambdas), but few non-essential 1.9 niceties used, tested in 2+.
 
-__This is in early development, so be careful.__
-
 ## Features
 
 * Easy to use
@@ -44,7 +42,7 @@ Here is how to use it to model a monster in a Quake-like game. It covers most Hi
 require 'hifsm'
 
 class Monster
-  include Hifsm
+  extend Hifsm
 
   hifsm do
     state :idle, :initial => true

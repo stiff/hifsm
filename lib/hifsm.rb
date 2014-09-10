@@ -22,13 +22,11 @@ module Hifsm
   end
 
   def self.included(base)
-    base.send(:extend, ClassMethods) unless base.respond_to?(:hifsm)
+    raise 'use extend Hifsm instead of include'
   end
 
-  module ClassMethods
-    def hifsm(name = :state, &block)
-      include FSM::new(name, &block).to_module
-    end
+  def hifsm(name = :state, &block)
+    include FSM::new(name, &block).to_module
   end
 end
 

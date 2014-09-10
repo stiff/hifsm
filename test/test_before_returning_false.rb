@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestBeforeReturningFalse < Minitest::Test
   class Door
-    include Hifsm
+    extend Hifsm
 
     hifsm do
       state :open

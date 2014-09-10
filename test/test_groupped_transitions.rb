@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestGrouppedTransitions < Minitest::Test
   class Button
-    include Hifsm
+    extend Hifsm
 
     hifsm do
       state :active, :initial => true

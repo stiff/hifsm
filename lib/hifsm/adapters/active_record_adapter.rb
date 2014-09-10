@@ -41,6 +41,6 @@ module Hifsm
 end
 
 ActiveRecord::Base.class_eval do
-  include Hifsm
+  extend Hifsm
   include Hifsm::Adapters::ActiveRecordAdapter
 end

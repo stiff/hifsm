@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestIflessFactorial < Minitest::Test
   class Value < Struct.new(:value)
-    include Hifsm
+    extend Hifsm
     hifsm do
       state :idle, :initial => true
       state :computing

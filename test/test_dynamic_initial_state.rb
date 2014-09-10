@@ -2,7 +2,7 @@ require 'setup_tests'
 
 class TestDynamicInitialState < Minitest::Test
   class Value < Struct.new(:value)
-    include Hifsm
+    extend Hifsm
     hifsm :group do
       state :few do
         state :very
