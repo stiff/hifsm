@@ -94,6 +94,15 @@ module Hifsm
           fsm.all_events.each do |event_name, event|
             define_method(event_name) {|*args| send(machine_name).fire(event_name, *args) }
           end
+
+          # <state.to_s.underscore>? = is machine currently in state <state>?
+          fsm.all_states.each do |st|
+            query = st.to_s
+            define_method("#{query.gsub('.', '_')}?") do
+              current = send(machine_name).to_s
+              current == query || current.start_with?("#{query}.")
+            end
+          end
         end
       end
 

@@ -160,6 +160,7 @@ ogre.act!               # Acting @attacking.pursuing
                         # step step player2
 ogre.reached
 puts ogre.state         # attacking.fighting
+# ogre.attacking_fighting? = true
 ogre.act!               # Acting @attacking.fighting
                         # 6: Attack!
                         # ~~> player2
@@ -219,6 +220,8 @@ order.start_processing.save   # 'processing.packaging'
 
 # scopes defined automatically. parent scopes looked up via like "processing.%"
 Order.processing.first.start_delivery.save
+Order.first.processing?                         # true
+Order.first.processing_delivering?              # true
 Order.processing_packaging.first                # nil
 Order.processing_delivering.first.cancel!.save  # save is never called inisde hifsm
 

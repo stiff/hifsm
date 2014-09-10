@@ -16,6 +16,11 @@ class TestBasicFSM < Minitest::Test
     assert_equal 'off', @machine.state.to_s
   end
 
+  def test_state_question_methods
+    refute @machine.on?, "Machine .on? should be false"
+    assert @machine.off?, "Machine .off? should be true"
+  end
+
   def test_toggle_switches_state_to_on
     @machine.toggle
     assert_equal 'on', @machine.state.to_s

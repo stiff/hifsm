@@ -120,6 +120,7 @@ if $0 == __FILE__
                           # step step player2
   ogre.reached
   puts ogre.state         # attacking.fighting
+  # ogre.attacking_fighting? = true
   ogre.act!               # Acting @attacking.fighting
                           # 6: Attack!
                           # ~~> player2

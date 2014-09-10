@@ -51,6 +51,14 @@ class TestHierarchical < Minitest::Test
     assert_equal 'off.sync.third_level', machine.state.to_s
   end
 
+  def test_state_question_methods
+    machine = @fsm.instantiate
+    refute machine.on?, "Machine .on? should be false"
+    assert machine.off?, "Machine .off? should be true"
+    refute machine.off_sync?, "Machine .off_sync? should be false"
+    assert machine.off_pending?, "Machine .off_pending? should be true"
+  end
+
   def test_toggle_from_off_sync_to_on_pending
     machine = @fsm.instantiate
     machine.sync
