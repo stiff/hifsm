@@ -53,4 +53,19 @@ class TestEventGuard < Minitest::Test
     assert_equal '3', wall.last_hit_strength
   end
 
+  def test_valid_events_for_thick_wall_and_low_power
+    wall = Wall.new(10)
+    assert_equal [], wall.state_machine.valid_events
+  end
+
+  def test_valid_events_for_thick_wall_high_power
+    wall = Wall.new(10)
+    assert_equal ['break'], wall.state_machine.valid_events(3)
+  end
+
+  def test_valid_events_for_thin_wall
+    wall = Wall.new(4)
+    assert_equal ['break'], wall.state_machine.valid_events
+  end
+
 end

@@ -50,6 +50,17 @@ module Hifsm
       @sub_fsm.get_state!(name)
     end
 
+    def valid_events(target, *args)
+      own_events = events.find_all do |event_name|
+        @transitions[event_name].any? {|event| event.guard?(target, *args)}
+      end
+      if @parent
+        (own_events + @parent.valid_events(target, *args)).uniq
+      else
+        own_events.uniq
+      end
+    end
+
     def fire(target, event_name, *args, &new_state_callback)
       event_name = event_name.to_s
       @transitions[event_name].each do |ev|

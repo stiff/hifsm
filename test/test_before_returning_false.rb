@@ -37,4 +37,13 @@ class TestBeforeReturningFalse < Minitest::Test
     # assert nothing raised
   end
 
+  def test_valid_events_include_parent_state_events
+    assert_equal ['lock', 'open'], @door.state_machine.valid_events.sort
+  end
+
+  def test_valid_events_include_parent_state_events
+    @door.lock
+    assert_equal ['open'], @door.state_machine.valid_events.sort
+  end
+
 end

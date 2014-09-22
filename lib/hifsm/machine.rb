@@ -13,6 +13,8 @@ module Hifsm
       @state = initial_state.enter!
     end
 
+    # Public API
+
     def act!(*args)
       @state.act!(@target, *args)
     end
@@ -21,10 +23,19 @@ module Hifsm
       @state
     end
 
+    def valid_events(*args)
+      @state.valid_events(@target, *args)
+    end
+
     def states
       @fsm.states
     end
 
+    def to_s
+      @state.to_s
+    end
+
+    # internals
     def all_states
       @fsm.all_states.reject(&:sub_fsm).collect(&:to_s)
     end
@@ -33,10 +44,6 @@ module Hifsm
       @state.fire(@target, event, *args) do |new_state|
         @state = new_state
       end
-    end
-
-    def to_s
-      @state.to_s
     end
   end
 end

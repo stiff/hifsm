@@ -227,6 +227,16 @@ Order.processing_delivering.first.cancel!.save  # save is never called inisde hi
 
 ```
 
+## Get possible transitions from current state
+
+The machine instance has `valid_events` method, with accepts arguments, that are passed to all event guards to find out if it is possible to fire the event.
+
+```ruby
+monster.state_machine.valid_events # -> ['reached', 'sight', 'acquire', ...]
+```
+
+The order of events is not guaranteed, events for parent states are included.
+
 ## Testing
 
 Only 'public' API is unit-tested, internal implementation may be freely changed, so don't rely on it.
